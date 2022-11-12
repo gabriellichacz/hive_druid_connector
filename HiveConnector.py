@@ -12,9 +12,17 @@ def hiveConnect(param_host, param_port, param_username = None, param_auth = 'NON
 	Returns:
 		Connection cursor
     """
-    from pyhive import hive
-    conn = hive.Connection(param_host, param_port, param_username, param_auth, param_database)
-    cur = conn.cursor()
+    try:
+        from pyhive import hive
+    except:
+        cur = 'Couldn\'t import pyhive'
+
+    try:
+        conn = hive.Connection(param_host, param_port, param_username, param_auth, param_database)
+        cur = conn.cursor()
+    except:
+        cur = 'Couldn\'t connect to Hive'
+        
     return cur
 
 def hiveExecuteSelect(connection, sql):
