@@ -1,0 +1,1 @@
+Hive connector written in Python 3.10 using PyHive.
