@@ -1,5 +1,5 @@
 # python 3.8.10 64-bit
-def hiveConnect(param_host, param_port, param_username = None, param_auth = 'NONE', param_database = 'default'):
+def hiveConnect(param_host, param_port, param_username = None, param_auth = 'NONE', param_database = 'default') -> 'pyhive.hive.Cursor':
     """
     Connect to Hive database
 
@@ -10,7 +10,7 @@ def hiveConnect(param_host, param_port, param_username = None, param_auth = 'NON
         param_auth (string): Hive database password (if it's set)
 
 	Returns:
-		Connection cursor
+		cur (pyhive.hive.Cursor): Connection cursor
     """
     try:
         from pyhive import hive
@@ -25,48 +25,50 @@ def hiveConnect(param_host, param_port, param_username = None, param_auth = 'NON
         
     return cur
 
-def hiveExecuteSelect(connection, sql):
+def hiveExecuteSelect(connection, sql) -> list:
     """
     Execute Select SQL command in Hive database
 
 	Parameters:
-		connection (object): Hive database cursor
+		connection (pyhive.hive.Cursor): Hive database cursor
 		sql (string): SQL statement
 
 	Returns:
-		data (string)
+		data (list)
     """
     try:
         connection.execute(sql)
         data = connection.fetchall()
     except:
         data = 'Couldn\'t execute SQL statement'
+
     return data
 
-def hiveExecuteAlteration(connection, sql):
+def hiveExecuteAlteration(connection, sql) -> str:
     """
     Execute SQL command in Hive database that doesn't return data (eg. create table)
 
 	Parameters:
-		connection (object): Hive database cursor
+		connection (pyhive.hive.Cursor): Hive database cursor
 		sql (string): SQL statement
 
 	Returns:
-		Message if sql was executed properly
+		message (string): Message if sql was executed properly
     """
     try:
         connection.execute(sql)
         message = 'SQL statement executed'
     except:
         message = 'Couldn\'t execute statement'
+
     return message
 
-def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_format = 'DELIMITED', fields_terminator = '\t', lines_terminator = '\n', stored_as = 'TEXTFILE'):
+def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_format = 'DELIMITED', fields_terminator = '\t', lines_terminator = '\n', stored_as = 'TEXTFILE') -> str:
     """
     Create table in Hive (not tested)
 
 	Parameters:
-		connection (object): Hive database cursor
+		connection (pyhive.hive.Cursor): Hive database cursor
 		table_name (string)
         column_list (array): Array with columns' names and types (eg. ['id_column int', 'name_column String'])
         comment (string)
@@ -76,7 +78,7 @@ def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_
         stored_as (string)
 
 	Returns:
-		Message if sql was executed properly
+		message (string): Message if sql was executed properly
     """
     create_sql = 'CREATE TABLE IF NOT EXISTS ' + table_name + ' ('
 
@@ -94,20 +96,21 @@ def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_
         message = 'Table ' + table_name + ' created'
     except:
         message = 'Couldn\'t create ' + table_name + ' table'
+
     return message
 
-def hiveCreateDruidExternalTable(connection, table_name, druid_table_name, storage_handler = 'org.apache.hadoop.hive.druid.DruidStorageHandler'):
+def hiveCreateDruidExternalTable(connection, table_name, druid_table_name, storage_handler = 'org.apache.hadoop.hive.druid.DruidStorageHandler') -> str:
     """
     Create external table in Hive from Druid
 
 	Parameters:
-		connection (object): Hive database cursor
+		connection (pyhive.hive.Cursor): Hive database cursor
 		table_name (string)
         druid_table_name (string)
         storage_handler (string) Druid storage handler | default = 'org.apache.hadoop.hive.druid.DruidStorageHandler'
 
 	Returns:
-		Message if sql was executed properly
+		message (string): Message if sql was executed properly
     """
     create_sql = 'CREATE EXTERNAL TABLE IF NOT EXISTS ' + table_name
     create_sql += ' STORED BY \"' + storage_handler + '\"'
@@ -118,18 +121,19 @@ def hiveCreateDruidExternalTable(connection, table_name, druid_table_name, stora
         message = 'Table ' + table_name + ' created'
     except:
         message = 'Couldn\'t create ' + table_name + ' table'
+
     return message
 
-def hiveDropTable(connection, table_name):
+def hiveDropTable(connection, table_name) -> str:
     """
     Drops table in Hive
 
 	Parameters:
-		connection (object): Hive database cursor
+		connection (pyhive.hive.Cursor): Hive database cursor
 		table_name (string)
 
 	Returns:
-		Message if sql was executed properly
+		message (string): Message if sql was executed properly
     """
     drop_sql = 'DROP TABLE ' + table_name
     
@@ -138,20 +142,22 @@ def hiveDropTable(connection, table_name):
         message = 'Table ' + table_name + ' dropped'
     except:
         message = 'Couldn\'t drop ' + table_name + ' table'
+
     return message
 
-def hiveSelect(connection, columns, table, where_column = None, where = None):
+def hiveSelect(connection, columns, table, where_column = None, where = None) -> list:
     """
     Select statement
 
 	Parameters:
+        connection (pyhive.hive.Cursor): Hive database cursor
 		columns (array): columns to select
 		table (string) table name
         where_column (string) where statement column | default = None
         where (string) where statement | default = None
 
 	Returns:
-		Data
+		data (list)
     """
     create_sql = 'SELECT '
 
@@ -167,4 +173,5 @@ def hiveSelect(connection, columns, table, where_column = None, where = None):
         data = hiveExecuteSelect(connection, create_sql)
     except:
         data = 'Couldn\'t execute statement'
+
     return data
