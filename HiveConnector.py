@@ -169,9 +169,27 @@ def hiveSelect(connection, columns, table, where_column = None, where = None) ->
     if (where_column != None and where != None):
         create_sql += ' WHERE ' + where_column + '= ' + where
     
-    try:
-        data = hiveExecuteSelect(connection, create_sql)
-    except:
-        data = 'Couldn\'t execute statement'
+    data = hiveExecuteSelect(connection, create_sql)
 
     return data
+
+def insertDataFromTableToTable(connection, tableDruid, tableHive, column_list):
+    """
+    Insert data from one table to another
+
+	Parameters:
+		connection (pyhive.hive.Cursor): Hive database cursor
+        tableDruid (string): table name to which the data will be inserted
+        tableHive (string): table name from which the data will be taken
+		column_list (array): list of columns from tableHive table
+
+	Returns:
+		message (string): Message if sql was executed properly
+    """
+    insert_sql = 'INSERT INTO ' + tableDruid
+    insert_sql += ' SELECT '
+    for column_index, column in enumerate(column_list):
+            insert_sql += column + ', ' if (column_index < len(column_list)-1) else column
+    insert_sql += ' FROM ' + tableHive
+
+    connection.execute(insert_sql)
