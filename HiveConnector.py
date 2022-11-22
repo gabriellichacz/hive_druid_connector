@@ -99,6 +99,35 @@ def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_
 
     return message
 
+def hiveCreateDruidExternalTableColumnList(connection, table_name, druid_table_name, column_list, storage_handler = 'org.apache.hadoop.hive.druid.DruidStorageHandler') -> str:
+    """
+    Create external table in Hive from Druid
+
+	Parameters:
+		connection (pyhive.hive.Cursor): Hive database cursor
+		table_name (string)
+        druid_table_name (string)
+        storage_handler (string) Druid storage handler | default = 'org.apache.hadoop.hive.druid.DruidStorageHandler'
+
+	Returns:
+		message (string): Message if sql was executed properly
+    """
+    create_sql = 'CREATE EXTERNAL TABLE IF NOT EXISTS ' + table_name + ' ('
+
+    for column_index, column in enumerate(column_list):
+            create_sql += column + ', ' if (column_index < len(column_list)-1) else column
+    
+    create_sql += ') STORED BY \"' + storage_handler + '\"'
+    create_sql += ' TBLPROPERTIES ("druid.datasource" = \"' + druid_table_name + '\")'
+    
+    try:
+        hiveExecuteAlteration(connection, create_sql)
+        message = 'Table ' + table_name + ' created'
+    except:
+        message = 'Couldn\'t create ' + table_name + ' table'
+
+    return message
+
 def hiveCreateDruidExternalTable(connection, table_name, druid_table_name, storage_handler = 'org.apache.hadoop.hive.druid.DruidStorageHandler') -> str:
     """
     Create external table in Hive from Druid
