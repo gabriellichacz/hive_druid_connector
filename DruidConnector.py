@@ -1,4 +1,10 @@
 # python 3.8.10 64-bit
+try:
+  import json
+  import requests
+except:
+  cur = 'Couldn\'t import json or requests library'
+
 def druidConnect(param_host, param_port = "8082") -> 'string':
   """
   Connect to Druid database
@@ -10,12 +16,6 @@ def druidConnect(param_host, param_port = "8082") -> 'string':
 	Returns:
   url (string): Druid connection url
   """
-  try:
-    import json
-    import requests
-  except:
-    cur = 'Couldn\'t import json or requests library'
-
   try:
     url = "http://" + param_host + ":" + param_port + "/druid/v2/sql/task/"
   except:
