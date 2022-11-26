@@ -63,7 +63,7 @@ def hiveExecuteAlteration(connection, sql) -> str:
 
     return message
 
-def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_format = 'DELIMITED', fields_terminator = '\t', lines_terminator = '\n', stored_as = 'TEXTFILE') -> str:
+def hiveCreateTable(connection, table_name, column_list = [], row_format = 'DELIMITED', fields_terminator = ',', lines_terminator = '\n') -> str:
     """
     Create table in Hive (not tested)
 
@@ -85,11 +85,9 @@ def hiveCreateTable(connection, table_name, column_list = [], comment = '', row_
     for column_index, column in enumerate(column_list):
             create_sql += column + ', ' if (column_index < len(column_list)-1) else column
 
-    create_sql += ') COMMENT \'' + comment + '\''
-    create_sql += ' ROW FORMAT ' + row_format
+    create_sql += ') ROW FORMAT ' + row_format
     create_sql += ' FIELDS TERMINATED BY \'' + fields_terminator + '\''
     create_sql += ' LINES TERMINATED BY \'' + lines_terminator + '\''
-    create_sql += ' STORED AS ' + stored_as
 
     try:
         hiveExecuteAlteration(connection, create_sql)
@@ -174,7 +172,7 @@ def hiveDropTable(connection, table_name) -> str:
 
     return message
 
-def hiveSelect(connection, columns, table, where_column = None, where = None) -> list:
+def hiveSelect(connection, columns, table, where_column = None, where = None, limit = None) -> list:
     """
     Select statement
 
@@ -184,6 +182,7 @@ def hiveSelect(connection, columns, table, where_column = None, where = None) ->
 		table (string) table name
         where_column (string) where statement column | default = None
         where (string) where statement | default = None
+        limit (int) limit statement | default = None
 
 	Returns:
 		data (list)
@@ -197,6 +196,9 @@ def hiveSelect(connection, columns, table, where_column = None, where = None) ->
 
     if (where_column != None and where != None):
         create_sql += ' WHERE ' + where_column + '= ' + where
+        
+    if (limit != None):
+        create_sql += ' LIMIT ' + str(limit)
     
     data = hiveExecuteSelect(connection, create_sql)
 
@@ -222,3 +224,37 @@ def insertDataFromTableToTable(connection, tableDruid, tableHive, column_list):
     insert_sql += ' FROM ' + tableHive
 
     connection.execute(insert_sql)
+    
+def hiveInsertDataToTableFromCsv(connection, tableName, dataPath):
+    """
+    Inserts data from local file to Hive table (same structure required)
+    
+	Parameters:
+        connection (pyhive.hive.Cursor): Hive database cursor
+		tableName (string): Hive table name
+        dataPath (string): Data file local path
+
+	Returns:
+		message (string): Message if sql was executed properly
+    """
+    connection.execute('''LOAD DATA LOCAL INPATH ''' + dataPath + ''' OVERWRITE INTO TABLE ''' + tableName)
+    
+def countData(connection, tableName, idName = 'id') -> int:
+    """
+    Counts data in a table
+
+	Parameters:
+        connection (pyhive.hive.Cursor): Hive database cursor
+		tableName (string): Hive table name
+        idName (string): Hive column | default = id
+
+	Returns:
+		len(data) (int): Table size
+    """
+    sql = '''SELECT (''' + idName + ''') FROM ''' + tableName
+    connection.execute(sql)
+    data = connection.fetchall()
+    return len(data)
+
+def hiveShowTablesList(hive):
+    return(hiveExecuteSelect(hive, 'show tables'))
