@@ -15,7 +15,7 @@ hiveCreateTable(hive, 'states', [
     'dest_state_name string'
 ])
 
-hiveInsertDataToTableFromCsv('states', 'states')
+hiveInsertDataToTableFromCsv(hive, 'states', '/home/stud/Downloads/old_data/states')
 
 hiveCreateTable(hive, 'airfields', [
     'airport_id int',
@@ -24,14 +24,14 @@ hiveCreateTable(hive, 'airfields', [
     'origin_city_name string'
 ])
 
-hiveInsertDataToTableFromCsv('airfields', 'airfields')
+hiveInsertDataToTableFromCsv(hive, 'airfields', '/home/stud/Downloads/old_data/airfields')
 
 hiveCreateTable(hive, 'airlines', [
     'code string',
     'description string'
 ])
 
-hiveInsertDataToTableFromCsv('airlines', 'airlines')
+hiveInsertDataToTableFromCsv(hive, 'airlines', '/home/stud/Downloads/old_data/airlines')
 
 hiveCreateTable(hive, 'flights', [
     'flight_id int',
@@ -73,4 +73,4 @@ hiveCreateTable(hive, 'flights', [
     'div_airport_landings int'
 ])
 
-hiveInsertDataToTableFromCsv('main_data_flights', 'flights')
+hiveInsertDataToTableFromCsv(hive, 'flights', '/home/stud/Downloads/old_data/main_data_flights.csv')
