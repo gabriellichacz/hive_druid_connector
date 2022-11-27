@@ -1,9 +1,19 @@
 from DruidConnector import *
+from HiveConnector import *
 import time
 
-druidUrl = druidConnect("192.168.1.112", "8082")
+druidUrl = druidConnect("192.168.1.112", "8082", "sql")
+druidStatusUrl = druidConnect("192.168.1.112", "8081", "task")
 
-test = druidCreateTableFromCsv(druidUrl, 'test_data', '/home/stud/Downloads/import_data', 'data_5tys', [
+hive_host = '192.168.1.112'
+hive_port = '10000'
+hive_username = 'stud'
+hive_pass = 'stud'
+hive = hiveConnect(hive_host, hive_port, hive_username, hive_pass)
+
+druidTableName = "test_data"
+csvDataName = "data_5tys"
+taskId = druidCreateTableFromCsv(druidUrl, druidTableName, "/home/stud/Downloads/import_data", csvDataName, [
     ['flight_id', 'long'],
     ['flight_date', 'string'],
     ['airline','string'],
@@ -42,4 +52,55 @@ test = druidCreateTableFromCsv(druidUrl, 'test_data', '/home/stud/Downloads/impo
     ['distance_group','long'],
     ['div_airport_landings','long']
 ], 1, 'day')
-print(test)
+
+status = "RUNNING"
+while status != "SUCCESS":
+    try:
+        status = druidCheckTaskStatus(druidStatusUrl, taskId)
+    except:
+        status = "RUNNING"
+        
+hiveExternalTableName = "temp_druid_" + druidTableName
+hiveCreateDruidExternalTable(hive, hiveExternalTableName, druidTableName)
+
+insertDataFromTableToTable(hive, hiveExternalTableName, flights, [
+    'flight_id',
+    '`__time` as flight_date',
+    'airline',
+    'origin',
+    'dest',
+    'cancelled',
+    'diverted',
+    'crs_dep_time',
+    'dep_time',
+    'dep_delay_minutes',
+    'dep_delay',
+    'arr_time',
+    'arr_delay_minutes',
+    'air_time',
+    'crs_elapsed_time',
+    'actual_elapsed_time',
+    'distance',
+    'day_of_week',
+    'flight_number_marketing_airline',
+    'tail_number',
+    'flight_number_operating_airline',
+    'origin_airport_id',
+    'dest_airport_id',
+    'dep_del_15',
+    'departure_delay_groups',
+    'dep_time_blk',
+    'taxi_out',
+    'wheels_off',
+    'wheels_on',
+    'taxi_in',
+    'crs_arr_time',
+    'arr_delay',
+    'arr_del_15',
+    'arrival_delay_groups',
+    'arr_time_blk',
+    'distance_group',
+    'div_airport_landings'
+])
+
+hiveDropTable(hive, hiveExternalTableName)
