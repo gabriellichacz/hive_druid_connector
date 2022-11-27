@@ -5,21 +5,26 @@ try:
 except:
   cur = 'Couldn\'t import json or requests library'
 
-def druidConnect(param_host, param_port = "8082") -> 'string':
+def druidConnect(param_host, param_port = "8082", option = 'default') -> 'string':
   """
   Connect to Druid database
 
 	Parameters:
   param_host (string): Druid database host
   param_port (string): Druid broker port | default = "8082"
+  option (string): Type of url to return (sql, task, default)
 
 	Returns:
   url (string): Druid connection url
   """
-  try:
-    url = "http://" + param_host + ":" + param_port + "/druid/v2/sql/task/"
-  except:
-    url = 'Couldn\'t connect to Druid broker'
+  url = "http://" + param_host + ":" + param_port
+  
+  if(option == 'sql'):
+    url += "/druid/v2/sql/task/"
+  elif(option == 'task'):
+    url += "/druid/indexer/v1/task/"
+  else:
+    url
       
   return url
 
@@ -37,7 +42,7 @@ def druidInsertIntoFromUrl(druidUrl, table_name, timestampColName, dataURL, data
   partition (string): Data partition | default = day
 
   Returns:
-  response (string): Druid response
+  responseData['taskId'] (string): Druid task id
   """
   sqlQuery = '''INSERT INTO ''' + table_name + '''\n''' 
   sqlQuery += '''SELECT TIME_PARSE(\"''' + timestampColName + '''\") AS __time,\n*\n'''
@@ -62,10 +67,12 @@ def druidInsertIntoFromUrl(druidUrl, table_name, timestampColName, dataURL, data
   })
   headers = {'Content-Type': 'application/json'}
   response = requests.request("POST", druidUrl, headers=headers, data=payload)
+  responseData = response.json()
+  print(responseData)
     
-  return response
+  return responseData['taskId']
 
-def druidCreateTableFromCsv(druidUrl, table_name, localPathFolder, csvName, columnList, timestampColumnIndex, partition = 'day') -> 'string':
+def druidCreateTableFromCsv(druidUrl, table_name, localPathFolder, csvName, columnList, timestampColumnIndex, partition = 'day'):
   """
   Create 'create table' task
 
@@ -79,7 +86,7 @@ def druidCreateTableFromCsv(druidUrl, table_name, localPathFolder, csvName, colu
   partition (string): Data partition | default = day
 
   Returns:
-  response (string): Druid response
+  responseData['taskId'] (string): Druid task id
   """
   sqlQuery = '''REPLACE INTO ''' + table_name + ''' OVERWRITE ALL\n'''
   sqlQuery += '''WITH ext AS (SELECT *\n'''
@@ -113,5 +120,14 @@ def druidCreateTableFromCsv(druidUrl, table_name, localPathFolder, csvName, colu
   })
   headers = {'Content-Type': 'application/json'}
   response = requests.request("POST", druidUrl, headers=headers, data=payload)
+  responseData = response.json()
+  print(responseData)
     
-  return response
+  return responseData['taskId']
+
+def druidCheckTaskStatus(druidUrl, taskId):
+  taskStatusUrl = druidUrl + taskId + "/reports"
+  response = requests.get(taskStatusUrl)
+  responseData = response.json()
+
+  return responseData['multiStageQuery']['payload']['status']['status']
