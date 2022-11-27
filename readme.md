@@ -6,7 +6,7 @@ druidInsertIntoFromUrl example
 from DruidConnector import *
 import time
 
-druidUrl = druidConnect("192.168.1.112", "8082")
+druidUrl = druidConnect("192.168.1.112", "8082", 'sql')
 
 insertData = druidInsertIntoFromUrl(druidUrl, 'wikipedia', 'timestamp', 'https://druid.apache.org/data/wikipedia.json.gz', 'json', [
         ['added', 'long'],
