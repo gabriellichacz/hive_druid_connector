@@ -13,7 +13,7 @@ hive = hiveConnect(hive_host, hive_port, hive_username, hive_pass)
 
 druidTableName = "test_data"
 csvDataName = "data_5tys"
-start = time()
+start = time.time()
 
 taskId = druidCreateTableFromCsv(druidUrl, druidTableName, "/home/stud/Downloads/import_data", csvDataName, [
     ['flight_id', 'long'],
@@ -104,7 +104,7 @@ insertDataFromTableToTable(hive, hiveExternalTableName, flights, [
     'distance_group',
     'div_airport_landings'
 ])
-end = time()
+end = time.time()
 
 hiveDropTable(hive, hiveExternalTableName)
 
