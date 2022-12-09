@@ -9,10 +9,10 @@ hive = hiveConnect(hive_host, hive_port, hive_username, hive_pass)
 
 ########### Making sure base data warehouse tables in Hive are of correct size ###########
 
-airlinesLen = countData(hive, 'airlines', 'code')
-airfieldsLen = countData(hive, 'airfields', 'airport_id')
-statesLen = countData(hive, 'states', 'dest_state')
-flightsLen = countData(hive, 'flights', 'flight_id')
+airlinesLen = countData(hive, 'druid_airlines', 'code')
+airfieldsLen = countData(hive, 'druid_airfields', 'airport_id')
+statesLen = countData(hive, 'druid_states', 'dest_state')
+flightsLen = countData(hive, 'druid_flights', 'dest')
 
 print('airlines length:', airlinesLen)
 print('airfields length:', airfieldsLen)
