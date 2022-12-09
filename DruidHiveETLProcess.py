@@ -2,6 +2,13 @@ from DruidConnector import *
 from HiveConnector import *
 import time
 
+##################################################################
+# Creating table in Druid
+# Creating external table in Hive from Druid table
+# Inserting external table data to main data warehouse table in Hive
+# Meanwhile measuring execution time
+##################################################################
+
 druidUrl = druidConnect("192.168.1.112", "8082", "sql")
 druidStatusUrl = druidConnect("192.168.1.112", "8081", "task")
 
