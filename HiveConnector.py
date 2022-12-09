@@ -237,7 +237,7 @@ def hiveInsertDataToTableFromCsv(connection, tableName, dataPath):
 	Returns:
 		message (string): Message if sql was executed properly
     """
-    connection.execute('''LOAD DATA LOCAL INPATH ''' + dataPath + ''' OVERWRITE INTO TABLE ''' + tableName)
+    connection.execute('''LOAD DATA LOCAL INPATH \'''' + dataPath + '''\' OVERWRITE INTO TABLE ''' + tableName)
     
 def countData(connection, tableName, idName = 'id') -> int:
     """
