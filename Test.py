@@ -34,9 +34,10 @@ def performanceTest(druidSqlUrl, kafkaHostIp, csvName) -> 'string':
         return "Wrong file name provided"
     
     countBeforeOperation = int(druidCountTable(druidSqlUrl, 'old_data')[13:-3])
-    countAfterOperation = countBeforeOperation + toAddRowsNumber - 1000
+    countAfterOperation = countBeforeOperation + toAddRowsNumber
     
-    cmd = 'cd /opt/kafka_2.13-2.7.0 && ./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic druid_stream < /home/stud/Downloads/import_data/' + csvName
+    cmd = '''cd /opt/kafka_2.13-2.7.0 && ./bin/kafka-console-producer.sh --broker-list localhost:9092 
+            --topic druid_stream < /home/stud/Downloads/import_data/''' + csvName
     client = SSHClient(kafkaHostIp, 'root', 'osource')
     
     # Operation start
