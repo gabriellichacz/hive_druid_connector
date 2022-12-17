@@ -65,7 +65,7 @@ taskId = druidCreateTableFromCsv(druidUrl, druidTableName, "/home/stud/Downloads
 status = "RUNNING"
 while status != "SUCCESS":
     try:
-        status = druidCheckTaskStatus(druidStatusUrl, taskId)
+        status = druidCheckTaskStatus(druidStatusUrl, taskId)['multiStageQuery']['payload']['status']['status']
     except:
         status = "RUNNING"
         
