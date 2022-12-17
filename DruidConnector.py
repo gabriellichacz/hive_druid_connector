@@ -20,6 +20,8 @@ def druidConnect(param_host, param_port = "8082", option = 'default') -> 'string
   url = "http://" + param_host + ":" + param_port
   
   if(option == 'sql'):
+    url += "/druid/v2/sql/"
+  elif(option == 'sql_task'):
     url += "/druid/v2/sql/task/"
   elif(option == 'task'):
     url += "/druid/indexer/v1/task/"
@@ -125,9 +127,40 @@ def druidCreateTableFromCsv(druidUrl, table_name, localPathFolder, csvName, colu
     
   return responseData['taskId']
 
-def druidCheckTaskStatus(druidUrl, taskId):
+def druidCheckTaskStatus(druidUrl, taskId) -> 'string':
+  """
+  Return task status
+
+  Parameters:
+  druidUrl (string): Druid database host URL
+  taskId (string): task id
+
+  Returns:
+  response.json() (string): json string with task status
+  """
   taskStatusUrl = druidUrl + taskId + "/reports"
   response = requests.get(taskStatusUrl)
-  responseData = response.json()
+  
+  return response.json()
 
-  return responseData['multiStageQuery']['payload']['status']['status']
+def druidCountTable(druidUrl, table_name) -> 'string':
+  """
+  Counts table rows
+
+  Parameters:
+  druidUrl (string): Druid database host URL
+  table_name (string): table name
+  
+  Returns:
+  response.text (string): json string with number of rows
+  """
+  sqlQuery = '''
+      SELECT COUNT(*) AS TheCount
+      FROM ''' + table_name
+      
+  payload = json.dumps({
+      "query": sqlQuery
+  })
+  headers = {'Content-Type': 'application/json'}
+  response = requests.request("POST", druidUrl, headers=headers, data=payload)
+  return response.text
