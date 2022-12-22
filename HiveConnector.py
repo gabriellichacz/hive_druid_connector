@@ -172,7 +172,7 @@ def hiveDropTable(connection, table_name) -> str:
 
     return message
 
-def hiveSelect(connection, columns, table, where_column = None, where = None, limit = None) -> list:
+def hiveSelect(connection, columns, table, where_column = None, where_sign = None, where = None, limit = None) -> list:
     """
     Select statement
 
@@ -181,6 +181,7 @@ def hiveSelect(connection, columns, table, where_column = None, where = None, li
 		columns (array): columns to select
 		table (string) table name
         where_column (string) where statement column | default = None
+        where_sign (string) where statement sign (=, >, <, etc) | default = None
         where (string) where statement | default = None
         limit (int) limit statement | default = None
 
@@ -195,7 +196,7 @@ def hiveSelect(connection, columns, table, where_column = None, where = None, li
     create_sql += ' FROM ' + table
 
     if (where_column != None and where != None):
-        create_sql += ' WHERE ' + where_column + '= ' + where
+        create_sql += ' WHERE ' + where_column + ' ' + where_sign + ' \'' + where + '\''
         
     if (limit != None):
         create_sql += ' LIMIT ' + str(limit)
