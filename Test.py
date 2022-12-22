@@ -36,17 +36,16 @@ def performanceTest(druidSqlUrl, kafkaHostIp, csvName) -> 'string':
     countBeforeOperation = int(druidCountTable(druidSqlUrl, 'old_data')[13:-3])
     countAfterOperation = countBeforeOperation + toAddRowsNumber
     
-    cmd = '''cd /opt/kafka_2.13-2.7.0 && ./bin/kafka-console-producer.sh --broker-list localhost:9092 
-            --topic druid_stream < /home/stud/Downloads/import_data/''' + csvName
+    cmd = '''cd /opt/kafka_2.13-2.7.0 && ./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic druid_stream < /home/stud/Downloads/import_data/''' + csvName
     client = SSHClient(kafkaHostIp, 'root', 'osource')
     
     # Operation start
     start = time.time()
     host_out = client.run_command(cmd) # Data ingestion into Kafka
-
+    
     count = int(druidCountTable(druidSqlUrl, 'old_data')[13:-3])
     while count < countAfterOperation:
-        count = int(druidCountTable(druidSqlUrl, 'old_data')[13:-3])
+        count = int(druidCountTable(druidSqlUrl, 'old_data')[13:-3]) 
     end = time.time()
     # Operation end
     
